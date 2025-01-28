@@ -4,10 +4,11 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: m1k1o/neko
+  IMAGE_NAME: vmfortress/neko
   TAG_PREFIX: intel-
   BASE_DOCKERFILE: Dockerfile.intel
   PLATFORMS: linux/amd64
@@ -18,7 +19,7 @@ jobs:
     #
     # do not run on forks
     #
-    if: github.repository_owner == 'm1k1o'
+    if: github.repository_owner == 'vmfortress'
     steps:
       -
         name: Checkout
@@ -29,7 +30,7 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - 
+      -
         name: Extract metadata (tags, labels) for Docker
         uses: docker/metadata-action@v3
         id: meta
@@ -40,14 +41,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha,format=long
-      - 
+      -
         name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_ACCESS_TOKEN }}
-      - 
+      -
         name: Build and push
         uses: docker/build-push-action@v2
         with:
@@ -63,25 +64,14 @@ jobs:
     #
     # do not run on forks
     #
-    if: github.repository_owner == 'm1k1o'
+    if: github.repository_owner == 'vmfortress'
     needs: [ build-base ]
     strategy:
       # Will build all images even if some fail.
       matrix:
         include:
           - tag: firefox
-          - tag: chromium
-          - tag: google-chrome
-          - tag: ungoogled-chromium
-          - tag: microsoft-edge
-          - tag: brave
-          - tag: vivaldi
-          - tag: opera
-          - tag: tor-browser
-          - tag: remmina
-          - tag: vlc
-          - tag: xfce
-          - tag: kde
+            dockerfile: Dockerfile.intel
     env:
       TAG_NAME: ${{ matrix.tag }}
       DOCKERFILE: ${{ matrix.dockerfile }}
@@ -95,7 +85,7 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - 
+      -
         name: Extract metadata (tags, labels) for Docker
         uses: docker/metadata-action@v3
         id: meta
@@ -106,14 +96,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha,format=long
-      - 
+      -
         name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_ACCESS_TOKEN }}
-      - 
+      -
         name: Build and push
         uses: docker/build-push-action@v2
         with:
